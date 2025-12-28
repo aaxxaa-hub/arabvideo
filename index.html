@@ -2,38 +2,35 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Video Site</title>
-
+  <title>Video Gallery</title>
   <style>
     body { font-family: Arial; background:#0f0f0f; color:white; }
-
     .grid{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
       gap:15px;
       padding:20px;
     }
-
     .card{
       cursor:pointer;
       background:#181818;
       border-radius:14px;
       padding-bottom:10px;
     }
-
     .thumb{
       position:relative;
       border-radius:14px;
       overflow:hidden;
+      height:200px;
     }
-
     .thumb img,
     .thumb video{
       width:100%;
+      height:100%;
+      object-fit:cover;
       display:block;
       border-radius:14px;
     }
-
     .thumb video{
       position:absolute;
       top:0;
@@ -41,125 +38,111 @@
       opacity:0;
       transition:0.3s;
     }
-
     .thumb:hover video{
       opacity:1;
     }
-
     .title{
       padding:8px 10px 0 10px;
       font-size:15px;
     }
-
+    .duration{
+      padding:0 10px 5px 10px;
+      font-size:13px;
+      color:#ccc;
+    }
     .buttons{
       text-align:center;
       margin:20px;
     }
-
     button{
       padding:10px 18px;
       border-radius:8px;
       border:none;
       cursor:pointer;
       font-size:14px;
+      margin:0 5px;
     }
   </style>
 </head>
-
 <body>
 
 <h2 style="text-align:center">Video Gallery</h2>
-
 <div class="grid" id="videos"></div>
 
 <div class="buttons">
+  <button id="prevBtn">السابق ⏮</button>
   <button id="nextBtn">التالي ⏭</button>
 </div>
 
 <script>
-
-  // 🟢 هنا ضع كل فيديوهاتك مهما كان عددها
+  // 🔹 هنا ضع الفيديوهات: رابط خارجي + عنوان + مدة
   const videos = [
-    { url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"1 فيديو", description:"desc 1"},
-    { url:"https://www.w3schools.com/html/movie.mp4", title:"2 فيديو", description:"desc 2"},
-    { url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"3 فيديو", description:"desc 3"},
-    { url:"https://www.w3schools.com/html/movie.mp4", title:"4 فيديو", description:"desc 4"},
-    { url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"5 فيديو", description:"desc 5"},
-    { url:"https://www.w3schools.com/html/movie.mp4", title:"6 فيديو", description:"desc 6"},
-    { url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"7 فيديو", description:"desc 7"},
-    { url:"https://www.w3schools.com/html/movie.mp4", title:"8 فيديو", description:"desc 8"},
-    { url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"9 فيديو", description:"desc 9"},
-    { url:"https://www.w3schools.com/html/movie.mp4", title:"10 فيديو", description:"desc 10"},
-    { url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"11 فيديو", description:"desc 11"},
-    { url:"https://www.w3schools.com/html/movie.mp4", title:"12 فيديو", description:"desc 12"}
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الأول", duration:"00:10"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني", duration:"00:12"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الثالث", duration:"00:15"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الرابع", duration:"00:20"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الخامس", duration:"00:08"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو السادس", duration:"00:18"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو السابع", duration:"00:25"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثامن", duration:"00:11"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو التاسع", duration:"00:14"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو العاشر", duration:"00:09"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الحادي عشر", duration:"00:22"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني عشر", duration:"00:16"}
   ];
 
   const container = document.getElementById("videos");
   const nextBtn = document.getElementById("nextBtn");
+  const prevBtn = document.getElementById("prevBtn");
 
   let page = 0;
   const perPage = 10;
 
   function loadPage(){
     container.innerHTML = "";
-
-    const start = page * perPage;
-    const end   = start + perPage;
-
-    const list = videos.slice(start,end);
+    const start = page*perPage;
+    const end = Math.min(start + perPage, videos.length);
+    const list = videos.slice(start, end);
 
     list.forEach(v => {
-
       const card = document.createElement("div");
-      card.className = "card";
+      card.className="card";
 
       const thumb = document.createElement("div");
-      thumb.className = "thumb";
+      thumb.className="thumb";
 
       const img = document.createElement("img");
       const video = document.createElement("video");
 
       const title = document.createElement("div");
-      title.className = "title";
+      title.className="title";
       title.innerText = v.title;
+
+      const duration = document.createElement("div");
+      duration.className="duration";
+      duration.innerText = v.duration;
 
       video.src = v.url;
       video.muted = true;
-      video.preload = "auto";
-      video.playsInline = true;
+      video.preload="auto";
+      video.playsInline=true;
 
-      thumb.onmouseover = () => video.play();
-      thumb.onmouseout = () => { 
-        video.pause(); 
-        video.currentTime = 0; 
-      };
+      thumb.onmouseover = ()=>video.play();
+      thumb.onmouseout = ()=>{ video.pause(); video.currentTime=0; };
 
-      card.onclick = () => {
-        window.location.href =
-          "watch.html?video=" + encodeURIComponent(v.url) +
-          "&title=" + encodeURIComponent(v.title) +
-          "&desc=" + encodeURIComponent(v.description);
-      };
-
-      video.addEventListener("loadedmetadata", () => {
-
-        const duration = video.duration;
-        const randomTime = duration * (0.1 + Math.random() * 0.7);
+      // توليد thumbnail من فيديو
+      video.addEventListener("loadedmetadata", ()=>{
+        const durationSec = video.duration;
+        const randomTime = durationSec * (0.1 + Math.random()*0.7);
         video.currentTime = randomTime;
-
-        video.addEventListener("seeked", () => {
-
+        video.addEventListener("seeked", ()=>{
           const canvas = document.createElement("canvas");
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
-
           const ctx = canvas.getContext("2d");
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+          ctx.drawImage(video,0,0,canvas.width,canvas.height);
           img.src = canvas.toDataURL("image/png");
-
-        }, { once: true });
-
+        }, {once:true});
       });
 
       thumb.appendChild(img);
@@ -167,30 +150,38 @@
 
       card.appendChild(thumb);
       card.appendChild(title);
+      card.appendChild(duration);
 
       container.appendChild(card);
-
     });
 
-    // إخفاء زر التالي إذا مفيش تاني
-    if(end >= videos.length){
-      nextBtn.style.display = "none";
-    } else {
-      nextBtn.style.display = "inline-block";
-    }
-
+    // أظهار/إخفاء أزرار التالي والسابق
+    prevBtn.style.display = page>0 ? "inline-block":"none";
+    nextBtn.style.display = end < videos.length ? "inline-block":"none";
   }
 
-  nextBtn.onclick = () => {
+  card.onclick = () => {
+  const params = new URLSearchParams();
+  params.set("video", v.url);
+  params.set("title", v.title);
+  params.set("desc", v.description || "لا يوجد تفاصيل");
+  window.location.href = "watch.html?" + params.toString();
+};
+  
+  nextBtn.onclick = ()=>{
     page++;
     loadPage();
-    window.scrollTo({top:0,behavior:"smooth"});
+    window.scrollTo({top:0, behavior:"smooth"});
+  };
+
+  prevBtn.onclick = ()=>{
+    page--;
+    loadPage();
+    window.scrollTo({top:0, behavior:"smooth"});
   };
 
   // أول تحميل
   loadPage();
-
 </script>
-
 </body>
 </html>
