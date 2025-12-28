@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <title>Video Gallery</title>
   <style>
-    body { font-family: Arial; background:#0f0f0f; color:white; }
+    body { font-family: Arial; background:#0f0f0f; color:white; margin:0; padding:0;}
+    h2{ text-align:center; margin-top:20px;}
     .grid{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
@@ -15,13 +16,28 @@
       cursor:pointer;
       background:#181818;
       border-radius:14px;
-      padding-bottom:10px;
       text-align:center;
+      overflow:hidden;
     }
-    .card img{
-      width:100%;
+    .thumb{
+      position:relative;
       height:150px;
+    }
+    .thumb img{
+      width:100%;
+      height:100%;
       object-fit:cover;
+      display:block;
+    }
+    .thumb video{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:0;
+      transition:0.3s;
       border-radius:14px;
     }
     .title{
@@ -29,7 +45,7 @@
       font-size:15px;
     }
     .duration{
-      padding:0 10px 5px 10px;
+      padding:0 10px 8px 10px;
       font-size:13px;
       color:#ccc;
     }
@@ -49,7 +65,7 @@
 </head>
 <body>
 
-<h2 style="text-align:center">Video Gallery</h2>
+<h2>Video Gallery</h2>
 <div class="grid" id="videos"></div>
 
 <div class="buttons">
@@ -58,80 +74,102 @@
 </div>
 
 <script>
-  const videos = [
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الأول", duration:"00:10", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+1", description:"تفاصيل الفيديو الأول"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني", duration:"00:12", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+2", description:"تفاصيل الفيديو الثاني"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الثالث", duration:"00:15", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+3", description:"تفاصيل الفيديو الثالث"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الرابع", duration:"00:20", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+4", description:"تفاصيل الفيديو الرابع"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الخامس", duration:"00:08", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+5", description:"تفاصيل الفيديو الخامس"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو السادس", duration:"00:18", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+6", description:"تفاصيل الفيديو السادس"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو السابع", duration:"00:25", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+7", description:"تفاصيل الفيديو السابع"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثامن", duration:"00:11", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+8", description:"تفاصيل الفيديو الثامن"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو التاسع", duration:"00:14", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+9", description:"تفاصيل الفيديو التاسع"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو العاشر", duration:"00:09", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+10", description:"تفاصيل الفيديو العاشر"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الحادي عشر", duration:"00:22", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+11", description:"تفاصيل الفيديو الحادي عشر"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني عشر", duration:"00:16", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+12", description:"تفاصيل الفيديو الثاني عشر"}
-  ];
+const videos = [
+  {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الأول", duration:"00:10", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+1", description:"تفاصيل الفيديو الأول"},
+  {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني", duration:"00:12", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+2", description:"تفاصيل الفيديو الثاني"},
+  {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الثالث", duration:"00:15", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+3", description:"تفاصيل الفيديو الثالث"},
+  {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الرابع", duration:"00:20", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+4", description:"تفاصيل الفيديو الرابع"},
+  {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الخامس", duration:"00:08", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+5", description:"تفاصيل الفيديو الخامس"},
+  {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو السادس", duration:"00:18", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+6", description:"تفاصيل الفيديو السادس"},
+  {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو السابع", duration:"00:25", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+7", description:"تفاصيل الفيديو السابع"},
+  {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثامن", duration:"00:11", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+8", description:"تفاصيل الفيديو الثامن"},
+  {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو التاسع", duration:"00:14", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+9", description:"تفاصيل الفيديو التاسع"},
+  {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو العاشر", duration:"00:09", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+10", description:"تفاصيل الفيديو العاشر"},
+  {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الحادي عشر", duration:"00:22", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+11", description:"تفاصيل الفيديو الحادي عشر"},
+  {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني عشر", duration:"00:16", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+12", description:"تفاصيل الفيديو الثاني عشر"}
+];
 
-  const container = document.getElementById("videos");
-  const nextBtn = document.getElementById("nextBtn");
-  const prevBtn = document.getElementById("prevBtn");
+const container = document.getElementById("videos");
+const nextBtn = document.getElementById("nextBtn");
+const prevBtn = document.getElementById("prevBtn");
 
-  let page = 0;
-  const perPage = 10;
+let page = 0;
+const perPage = 10;
 
-  function loadPage(){
-    container.innerHTML = "";
-    const start = page*perPage;
-    const end = Math.min(start + perPage, videos.length);
-    const list = videos.slice(start, end);
+function loadPage(){
+  container.innerHTML = "";
+  const start = page*perPage;
+  const end = Math.min(start + perPage, videos.length);
+  const list = videos.slice(start, end);
 
-    list.forEach(v => {
-      const card = document.createElement("div");
-      card.className="card";
+  list.forEach(v => {
+    const card = document.createElement("div");
+    card.className="card";
 
-      const img = document.createElement("img");
-      img.src = v.thumbnail;
+    const thumb = document.createElement("div");
+    thumb.className="thumb";
 
-      const title = document.createElement("div");
-      title.className="title";
-      title.innerText = v.title;
+    const img = document.createElement("img");
+    img.src = v.thumbnail;
 
-      const duration = document.createElement("div");
-      duration.className="duration";
-      duration.innerText = v.duration;
+    const video = document.createElement("video");
+    video.src = v.url;
+    video.muted = true;
+    video.preload = "auto";
+    video.playsInline = true;
 
-      card.appendChild(img);
-      card.appendChild(title);
-      card.appendChild(duration);
+    thumb.appendChild(img);
+    thumb.appendChild(video);
 
-      card.onclick = ()=>{
-        const params = new URLSearchParams();
-        params.set("video", v.url);
-        params.set("title", v.title);
-        params.set("desc", v.description);
-        window.location.href = "watch.html?" + params.toString();
-      };
+    thumb.onmouseover = ()=>{
+      video.style.opacity = "1";
+      video.play();
+    };
+    thumb.onmouseout = ()=>{
+      video.pause();
+      video.currentTime=0;
+      video.style.opacity = "0";
+    };
 
-      container.appendChild(card);
-    });
+    const title = document.createElement("div");
+    title.className="title";
+    title.innerText = v.title;
 
-    prevBtn.style.display = page>0 ? "inline-block":"none";
-    nextBtn.style.display = end < videos.length ? "inline-block":"none";
-  }
+    const duration = document.createElement("div");
+    duration.className="duration";
+    duration.innerText = v.duration;
 
-  nextBtn.onclick = ()=>{
-    page++;
-    loadPage();
-    window.scrollTo({top:0, behavior:"smooth"});
-  };
-  prevBtn.onclick = ()=>{
-    page--;
-    loadPage();
-    window.scrollTo({top:0, behavior:"smooth"});
-  };
+    card.appendChild(thumb);
+    card.appendChild(title);
+    card.appendChild(duration);
 
+    card.onclick = ()=>{
+      const params = new URLSearchParams();
+      params.set("video", v.url);
+      params.set("title", v.title);
+      params.set("desc", v.description);
+      window.location.href = "watch.html?" + params.toString();
+    };
+
+    container.appendChild(card);
+  });
+
+  prevBtn.style.display = page>0 ? "inline-block":"none";
+  nextBtn.style.display = end < videos.length ? "inline-block":"none";
+}
+
+nextBtn.onclick = ()=>{
+  page++;
   loadPage();
+  window.scrollTo({top:0, behavior:"smooth"});
+};
+prevBtn.onclick = ()=>{
+  page--;
+  loadPage();
+  window.scrollTo({top:0, behavior:"smooth"});
+};
+
+loadPage();
 </script>
 </body>
 </html>
