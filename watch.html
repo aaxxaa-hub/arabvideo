@@ -3,34 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <title>Watch Video</title>
+
   <style>
     body { background:#000; color:white; font-family:Arial; text-align:center; }
-    video { width:80%; margin-top:20px; border-radius:12px; }
+    video { width:80%; margin-top:10px; border-radius:12px; }
+    .box{
+      width:80%;
+      margin:auto;
+      text-align:right;
+    }
+    h2{ margin-bottom:5px; }
+    p{ color:#ccc; }
   </style>
 </head>
+
 <body>
 
-<h2>Video Player</h2>
+<div class="box">
+  <h2 id="title"></h2>
+  <p id="desc"></p>
+</div>
 
 <video id="player" controls></video>
 
 <p id="time"></p>
 
 <script>
-  // get video link from URL
+
   const params = new URLSearchParams(window.location.search);
-  const src = params.get("video");
+
+  const src   = params.get("video");
+  const title = params.get("title");
+  const desc  = params.get("desc");
+
+  document.getElementById("title").innerText = title;
+  document.getElementById("desc").innerText  = desc;
 
   const video = document.getElementById("player");
   video.src = src;
 
-  // display current time and duration
   video.addEventListener("timeupdate", () => {
     const current = Math.floor(video.currentTime);
     const duration = Math.floor(video.duration);
     document.getElementById("time").innerText =
-      current + " / " + duration + " sec";
+      current + " / " + duration + " ثانية";
   });
+
 </script>
 
 </body>
