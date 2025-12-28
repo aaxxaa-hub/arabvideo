@@ -2,57 +2,136 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>مشاهدة الفيديو</title>
+  <title>Video Gallery</title>
   <style>
-    body { font-family: Arial; background:#000; color:white; text-align:center; }
-    .container{ width:80%; margin:auto; text-align:right; }
-    h2{ margin-bottom:5px; }
-    p{ color:#ccc; }
-    video{ width:100%; max-height:500px; border-radius:12px; margin-top:10px; }
-    .timebar{ color:#aaa; margin-top:5px; font-size:14px; }
-    .backBtn{
-      margin-top:15px;
-      padding:8px 12px;
-      border:none;
-      border-radius:6px;
+    body { font-family: Arial; background:#0f0f0f; color:white; }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+      gap:15px;
+      padding:20px;
+    }
+    .card{
       cursor:pointer;
-      background:#333;
-      color:white;
+      background:#181818;
+      border-radius:14px;
+      padding-bottom:10px;
+      text-align:center;
+    }
+    .card img{
+      width:100%;
+      height:150px;
+      object-fit:cover;
+      border-radius:14px;
+    }
+    .title{
+      padding:8px 10px 0 10px;
+      font-size:15px;
+    }
+    .duration{
+      padding:0 10px 5px 10px;
+      font-size:13px;
+      color:#ccc;
+    }
+    .buttons{
+      text-align:center;
+      margin:20px;
+    }
+    button{
+      padding:10px 18px;
+      border-radius:8px;
+      border:none;
+      cursor:pointer;
+      font-size:14px;
+      margin:0 5px;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2 id="title"></h2>
-  <p id="desc"></p>
-  <video id="player" controls></video>
-  <div class="timebar" id="time"></div>
-  <button class="backBtn" onclick="history.back()">⬅ العودة للصفحة الرئيسية</button>
+<h2 style="text-align:center">Video Gallery</h2>
+<div class="grid" id="videos"></div>
+
+<div class="buttons">
+  <button id="prevBtn">السابق ⏮</button>
+  <button id="nextBtn">التالي ⏭</button>
 </div>
 
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const src   = params.get("video");
-  const title = params.get("title");
-  const desc  = params.get("desc");
+  const videos = [
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الأول", duration:"00:10", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+1", description:"تفاصيل الفيديو الأول"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني", duration:"00:12", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+2", description:"تفاصيل الفيديو الثاني"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الثالث", duration:"00:15", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+3", description:"تفاصيل الفيديو الثالث"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الرابع", duration:"00:20", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+4", description:"تفاصيل الفيديو الرابع"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الخامس", duration:"00:08", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+5", description:"تفاصيل الفيديو الخامس"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو السادس", duration:"00:18", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+6", description:"تفاصيل الفيديو السادس"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو السابع", duration:"00:25", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+7", description:"تفاصيل الفيديو السابع"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثامن", duration:"00:11", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+8", description:"تفاصيل الفيديو الثامن"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو التاسع", duration:"00:14", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+9", description:"تفاصيل الفيديو التاسع"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو العاشر", duration:"00:09", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+10", description:"تفاصيل الفيديو العاشر"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الحادي عشر", duration:"00:22", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+11", description:"تفاصيل الفيديو الحادي عشر"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني عشر", duration:"00:16", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+12", description:"تفاصيل الفيديو الثاني عشر"}
+  ];
 
-  document.getElementById("title").innerText = title;
-  document.getElementById("desc").innerText  = desc;
+  const container = document.getElementById("videos");
+  const nextBtn = document.getElementById("nextBtn");
+  const prevBtn = document.getElementById("prevBtn");
 
-  const video = document.getElementById("player");
-  video.src = src;
+  let page = 0;
+  const perPage = 10;
 
-  video.addEventListener("timeupdate", () => {
-    const cur = Math.floor(video.currentTime);
-    const dur = Math.floor(video.duration);
-    const curMin = Math.floor(cur/60).toString().padStart(2,'0');
-    const curSec = (cur%60).toString().padStart(2,'0');
-    const durMin = Math.floor(dur/60).toString().padStart(2,'0');
-    const durSec = (dur%60).toString().padStart(2,'0');
-    document.getElementById("time").innerText = `${curMin}:${curSec} / ${durMin}:${durSec}`;
-  });
+  function loadPage(){
+    container.innerHTML = "";
+    const start = page*perPage;
+    const end = Math.min(start + perPage, videos.length);
+    const list = videos.slice(start, end);
+
+    list.forEach(v => {
+      const card = document.createElement("div");
+      card.className="card";
+
+      const img = document.createElement("img");
+      img.src = v.thumbnail;
+
+      const title = document.createElement("div");
+      title.className="title";
+      title.innerText = v.title;
+
+      const duration = document.createElement("div");
+      duration.className="duration";
+      duration.innerText = v.duration;
+
+      card.appendChild(img);
+      card.appendChild(title);
+      card.appendChild(duration);
+
+      card.onclick = ()=>{
+        const params = new URLSearchParams();
+        params.set("video", v.url);
+        params.set("title", v.title);
+        params.set("desc", v.description);
+        window.location.href = "watch.html?" + params.toString();
+      };
+
+      container.appendChild(card);
+    });
+
+    prevBtn.style.display = page>0 ? "inline-block":"none";
+    nextBtn.style.display = end < videos.length ? "inline-block":"none";
+  }
+
+  nextBtn.onclick = ()=>{
+    page++;
+    loadPage();
+    window.scrollTo({top:0, behavior:"smooth"});
+  };
+  prevBtn.onclick = ()=>{
+    page--;
+    loadPage();
+    window.scrollTo({top:0, behavior:"smooth"});
+  };
+
+  loadPage();
 </script>
-
 </body>
 </html>
