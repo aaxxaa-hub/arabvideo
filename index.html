@@ -1,45 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Video Gallery</title>
-<style>
-  * { box-sizing: border-box; font-family: Arial,sans-serif; }
-  body { margin: 0; background: #0f0f0f; color: #fff; }
-  header { padding: 20px; text-align: center; font-size: 24px; font-weight: bold; background: #181818; }
-  .container { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 16px; padding: 20px; }
-  .video-card { position: relative; cursor: pointer; overflow: hidden; border-radius: 12px; background: #000; }
-  .video-card img { width: 100%; display: block; }
-  .video-title { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px; font-size: 14px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
-</style>
+  <meta charset="UTF-8">
+  <title>Video Site</title>
+
+  <style>
+    body { font-family: Arial; background:#0f0f0f; color:white; }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+      gap:15px;
+      padding:20px;
+    }
+
+    .card{
+      position:relative;
+      cursor:pointer;
+    }
+
+    video, img{
+      width:100%;
+      border-radius:14px;
+      display:block;
+    }
+
+    video{
+      position:absolute;
+      top:0;
+      left:0;
+      opacity:0;
+      transition:0.3s;
+    }
+
+    .card:hover video{
+      opacity:1;
+    }
+  </style>
 </head>
+
 <body>
 
-<header>🎬 My Video Website</header>
-<div class="container" id="videoContainer"></div>
+<h2 style="text-align:center">Video Gallery</h2>
+
+<div class="grid" id="videos"></div>
 
 <script>
-const videoList = [
-  { title: "MP4 Video", url: "https://xhamster.com/videos/turkish-co-workers-fuck-xhtyRpY", cover: "https://xhamster.com/videos/turkish-co-workers-fuck-xhtyRpY.jpg" },
-  { title: "YouTube Video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", cover: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" },
-  { title: "Vimeo Video", url: "https://player.vimeo.com/video/76979871", cover: "https://i.vimeocdn.com/video/452001751_640.jpg" }
-];
 
-const container = document.getElementById('videoContainer');
+  // روابط الفيديوهات الخارجية
+  const videoLinks = [
+    "https://www.w3schools.com/html/mov_bbb.mp4",
+    "https://www.w3schools.com/html/movie.mp4"
+  ];
 
-videoList.forEach((video, index) => {
-  const card = document.createElement('div');
-  card.className = 'video-card';
-  card.innerHTML = `
-    <img src="${video.cover}" alt="${video.title}">
-    <div class="video-title">${video.title}</div>
-  `;
-  card.addEventListener('click', () => {
-    window.location.href = `player.html?index=${index}`;
+  const container = document.getElementById("videos");
+
+  videoLinks.forEach(url => {
+
+    // إنشاء عناصر الكارت
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const img = document.createElement("img");   // الصورة (thumbnail)
+    const video = document.createElement("video"); // الفيديو hover
+
+    video.src = url;
+    video.muted = true;
+    video.preload = "auto";
+
+    // اوتو بلاي عند المرور
+    card.onmouseover = () => video.play();
+    card.onmouseout = () => { video.pause(); video.currentTime = 0; };
+
+    // فتح صفحة المشاهدة
+    card.onclick = () => {
+      window.location.href = "watch.html?video=" + encodeURIComponent(url);
+    };
+
+    // توليد صورة من أول فريم
+    video.addEventListener("loadeddata", () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      img.src = canvas.toDataURL("image/png");
+    });
+
+    card.appendChild(img);
+    card.appendChild(video);
+    container.appendChild(card);
+
   });
-  container.appendChild(card);
-});
+
 </script>
 
 </body>
