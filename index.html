@@ -17,6 +17,10 @@
     .card{
       position:relative;
       cursor:pointer;
+      overflow:hidden;
+      background:#181818;
+      border-radius:14px;
+      padding-bottom:10px;
     }
 
     video, img{
@@ -36,6 +40,11 @@
     .card:hover video{
       opacity:1;
     }
+
+    .title{
+      padding:8px 10px 0 10px;
+      font-size:15px;
+    }
   </style>
 </head>
 
@@ -47,50 +56,79 @@
 
 <script>
 
-  // روابط الفيديوهات الخارجية
-  const videoLinks = [
-    "https://www.w3schools.com/html/mov_bbb.mp4",
-    "https://www.w3schools.com/html/movie.mp4"
+  // 🔥 هنا تحط الفيديوهات — كل فيديو له (لينك + عنوان + وصف)
+  const videos = [
+    {
+      url: "https://www.w3schools.com/html/mov_bbb.mp4",
+      title: "الفيديو الأول تجربة",
+      description: "هذا فيديو تجريبي بسيط لعرض فكرة المشغل وعرض التفاصيل."
+    },
+    {
+      url: "https://www.w3schools.com/html/movie.mp4",
+      title: "الفيديو الثاني مثال توضيحي",
+      description: "يوضح كيفية تشغيل الفيديو وعرض كوفر وصورة عشوائية منه."
+    }
   ];
 
   const container = document.getElementById("videos");
 
-  videoLinks.forEach(url => {
+  videos.forEach(v => {
 
-    // إنشاء عناصر الكارت
     const card = document.createElement("div");
     card.className = "card";
 
-    const img = document.createElement("img");   // الصورة (thumbnail)
-    const video = document.createElement("video"); // الفيديو hover
+    const img = document.createElement("img");
+    const video = document.createElement("video");
+    const title = document.createElement("div");
 
-    video.src = url;
+    title.className = "title";
+    title.innerText = v.title;
+
+    video.src = v.url;
     video.muted = true;
     video.preload = "auto";
+    video.playsInline = true;
 
-    // اوتو بلاي عند المرور
+    // تشغيل عند المرور
     card.onmouseover = () => video.play();
-    card.onmouseout = () => { video.pause(); video.currentTime = 0; };
-
-    // فتح صفحة المشاهدة
-    card.onclick = () => {
-      window.location.href = "watch.html?video=" + encodeURIComponent(url);
+    card.onmouseout = () => { 
+      video.pause(); 
+      video.currentTime = 0; 
     };
 
-    // توليد صورة من أول فريم
-    video.addEventListener("loadeddata", () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+    // فتح صفحة التفاصيل
+    card.onclick = () => {
+      window.location.href =
+        "watch.html?video=" + encodeURIComponent(v.url) +
+        "&title=" + encodeURIComponent(v.title) +
+        "&desc=" + encodeURIComponent(v.description);
+    };
 
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // صورة من فريم عشوائي داخل الفيديو
+    video.addEventListener("loadedmetadata", () => {
 
-      img.src = canvas.toDataURL("image/png");
+      const duration = video.duration;
+      const randomTime = duration * (0.1 + Math.random() * 0.7);
+      video.currentTime = randomTime;
+
+      video.addEventListener("seeked", () => {
+
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        img.src = canvas.toDataURL("image/png");
+
+      }, { once: true });
+
     });
 
     card.appendChild(img);
     card.appendChild(video);
+    card.appendChild(title);
     container.appendChild(card);
 
   });
