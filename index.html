@@ -21,7 +21,7 @@
       position:relative;
       border-radius:14px;
       overflow:hidden;
-      height:200px;
+      height:150px;
     }
     .thumb img,
     .thumb video{
@@ -75,20 +75,20 @@
 </div>
 
 <script>
-  // 🔹 هنا ضع الفيديوهات: رابط خارجي + عنوان + مدة
+  // 🔹 هنا ضع الفيديوهات مع رابط الفيديو + العنوان + المدة + thumbnail جاهز
   const videos = [
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الأول", duration:"00:10"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني", duration:"00:12"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الثالث", duration:"00:15"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الرابع", duration:"00:20"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الخامس", duration:"00:08"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو السادس", duration:"00:18"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو السابع", duration:"00:25"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثامن", duration:"00:11"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو التاسع", duration:"00:14"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو العاشر", duration:"00:09"},
-    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الحادي عشر", duration:"00:22"},
-    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني عشر", duration:"00:16"}
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الأول", duration:"00:10", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+1"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني", duration:"00:12", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+2"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الثالث", duration:"00:15", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+3"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الرابع", duration:"00:20", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+4"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الخامس", duration:"00:08", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+5"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو السادس", duration:"00:18", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+6"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو السابع", duration:"00:25", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+7"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثامن", duration:"00:11", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+8"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو التاسع", duration:"00:14", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+9"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو العاشر", duration:"00:09", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+10"},
+    {url:"https://www.w3schools.com/html/mov_bbb.mp4", title:"الفيديو الحادي عشر", duration:"00:22", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+11"},
+    {url:"https://www.w3schools.com/html/movie.mp4", title:"الفيديو الثاني عشر", duration:"00:16", thumbnail:"https://via.placeholder.com/400x200.png?text=Video+12"}
   ];
 
   const container = document.getElementById("videos");
@@ -112,7 +112,19 @@
       thumb.className="thumb";
 
       const img = document.createElement("img");
+      img.src = v.thumbnail;
+
       const video = document.createElement("video");
+      video.src = v.url;
+      video.muted = true;
+      video.preload="auto";
+      video.playsInline=true;
+
+      thumb.onmouseover = ()=>video.play();
+      thumb.onmouseout = ()=>{ video.pause(); video.currentTime=0; };
+
+      thumb.appendChild(img);
+      thumb.appendChild(video);
 
       const title = document.createElement("div");
       title.className="title";
@@ -122,52 +134,26 @@
       duration.className="duration";
       duration.innerText = v.duration;
 
-      video.src = v.url;
-      video.muted = true;
-      video.preload="auto";
-      video.playsInline=true;
-
-      thumb.onmouseover = ()=>video.play();
-      thumb.onmouseout = ()=>{ video.pause(); video.currentTime=0; };
-
-      // توليد thumbnail من فيديو
-      video.addEventListener("loadedmetadata", ()=>{
-        const durationSec = video.duration;
-        const randomTime = durationSec * (0.1 + Math.random()*0.7);
-        video.currentTime = randomTime;
-        video.addEventListener("seeked", ()=>{
-          const canvas = document.createElement("canvas");
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(video,0,0,canvas.width,canvas.height);
-          img.src = canvas.toDataURL("image/png");
-        }, {once:true});
-      });
-
-      thumb.appendChild(img);
-      thumb.appendChild(video);
-
       card.appendChild(thumb);
       card.appendChild(title);
       card.appendChild(duration);
 
+      // عند الضغط على الفيديو يفتح watch.html
+      card.onclick = () => {
+        const params = new URLSearchParams();
+        params.set("video", v.url);
+        params.set("title", v.title);
+        params.set("desc", "تفاصيل الفيديو هنا");
+        window.location.href = "watch.html?" + params.toString();
+      };
+
       container.appendChild(card);
     });
 
-    // أظهار/إخفاء أزرار التالي والسابق
     prevBtn.style.display = page>0 ? "inline-block":"none";
     nextBtn.style.display = end < videos.length ? "inline-block":"none";
   }
 
-  card.onclick = () => {
-  const params = new URLSearchParams();
-  params.set("video", v.url);
-  params.set("title", v.title);
-  params.set("desc", v.description || "لا يوجد تفاصيل");
-  window.location.href = "watch.html?" + params.toString();
-};
-  
   nextBtn.onclick = ()=>{
     page++;
     loadPage();
@@ -180,7 +166,6 @@
     window.scrollTo({top:0, behavior:"smooth"});
   };
 
-  // أول تحميل
   loadPage();
 </script>
 </body>
