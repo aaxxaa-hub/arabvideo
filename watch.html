@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Watch Video</title>
+  <style>
+    body { background:#000; color:white; font-family:Arial; text-align:center; }
+    video { width:80%; margin-top:20px; border-radius:12px; }
+  </style>
+</head>
+<body>
+
+<h2>Video Player</h2>
+
+<video id="player" controls></video>
+
+<p id="time"></p>
+
+<script>
+  // get video link from URL
+  const params = new URLSearchParams(window.location.search);
+  const src = params.get("video");
+
+  const video = document.getElementById("player");
+  video.src = src;
+
+  // display current time and duration
+  video.addEventListener("timeupdate", () => {
+    const current = Math.floor(video.currentTime);
+    const duration = Math.floor(video.duration);
+    document.getElementById("time").innerText =
+      current + " / " + duration + " sec";
+  });
+</script>
+
+</body>
+</html>
